@@ -1,0 +1,6 @@
+-- Run this in your Snowflake Worksheet
+USE SCHEMA FINANCIAL_ANALYTICS.FRAUD_DETECTION;
+
+CREATE OR REPLACE STAGE ML_MODELS_INTERNAL
+    DIRECTORY = (ENABLE = TRUE)
+    COMMENT = 'Internal stage for ML model files.';
