@@ -37,7 +37,7 @@ The pipeline leverages Snowpark Python for high-scale feature engineering and mo
 2.  **Feature Engineering:** Complex aggregates and velocity features are created at scale using **Snowpark DataFrames**.
 3.  **Deployment:** The trained model is deployed as a permanent **Snowflake Python UDF (`SCORE_TRANSACTION`)**.
 4.  **Automation:** A scheduled **Snowflake Task** executes hourly, calling the UDF to score new data using the **optimized <-0.06 threshold**.
-5.  **Visualization:** The final **`V_FRAUD_REPORTING_VIEW`** joins scores with business context and feeds the **Tableau dashboard** for analyst Dashboard[(https://public.tableau.com/app/profile/nandita.ghildyal4373/viz/Fraud-Detection_17621216990630/Dashboard1)]
+5.  **Visualization:** The final **`V_FRAUD_REPORTING_VIEW`** joins scores with business context and feeds the **Tableau dashboard** for stakeholders. [Dashboard Here!](https://public.tableau.com/app/profile/nandita.ghildyal4373/viz/Fraud-Detection_17621216990630/Dashboard1)
 
 ---
 
