@@ -26,7 +26,7 @@ The architecture is designed for scale and efficiency, running the entire ML pip
 * **ML & Logic:** **Snowpark Python**, Python ($\text{scikit-learn}$), SQL
 * **Cloud Storage:** AWS S3
 * **Orchestration:** Snowflake Tasks (simulated real-time scheduling)
-* **Dataset:** PaySim Synthetic Financial Data (6.3 Million Records)
+* **Dataset:** Capital One DS Challenge 2018 (6.3 Million Records)
 
 ### End-to-End Flow
 
