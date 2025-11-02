@@ -1,70 +1,52 @@
-# 🛡️ Financial Transaction Anomaly Detection Engine
+#  Financial Transaction Anomaly Detection Engine: Snowflake MLOps Pipeline
 
 ## Project Overview
 
-This project showcases the design, deployment, and operationalization of a real-time Machine Learning (ML) system for financial transaction monitoring. It is built entirely on the modern cloud data stack (**Snowflake** and **AWS**) and utilizes **Snowpark Python**, demonstrating proficiency in building scalable, governed risk models.
+This repository documents the design, deployment, and operationalization of a real-time Machine Learning (ML) system for financial transaction monitoring. The entire MLOps workflow is executed *within* the secure **Snowflake Data Cloud** using **Snowpark Python**, showcasing a robust, compliant, and scalable solution.
 
-**The primary goal was to transition from traditional monitoring to an agile, performance-driven classification and detection system.**
-
-### 📊 Key Results & Business Impact
-
-| Metric | Result | Value to the Business |
-| :--- | :--- | :--- |
-| **Alert Quality** | **20% Reduction in False Positives** | Directly increases AML investigator efficiency and reduces operational costs. |
-| **Deployment** | **Real-Time Scoring** | Enables immediate identification of high-risk activity as transactions occur. |
-| **Compliance** | Full **Data Governance & Lineage** | Guarantees auditability and regulatory compliance for the model output. |
+The primary goal was to replace static monitoring with an agile, performance-driven detection system.
 
 ---
 
-## 💻 Technical Architecture & Deployment
+## Key Results & Business Impact
 
-The architecture is designed for scale and efficiency, running the entire ML pipeline within the Snowflake ecosystem.
+| Metric | Outcome | Impact |
+| :--- | :--- | :--- |
+| **Alert Quality** | **20% False Positive Rate Reduction** | Achieved by tuning the Isolation Forest threshold from <-0.05 to **<-0.06**, significantly boosting analyst efficiency. |
+| **Deployment** | **Real-Time Detection** | Instantaneous scoring on new data via a persistent Snowflake UDF. |
+| **Scalability** | **Serverless MLOps** | Eliminated dependency on external scoring infrastructure; solution scales elastically with Snowflake compute. |
+| **Governance** | **Zero-Copy Security** | Scoring logic runs directly in the data warehouse, ensuring full auditability and security compliance. |
+
+---
+
+## Technical Architecture & Snowpark Flow
+
+The pipeline leverages Snowpark Python for high-scale feature engineering and model deployment, using Snowflake's native orchestration tools.
 
 ### Stack
 
-* **Data Warehouse:** Snowflake
-* **ML & Logic:** **Snowpark Python**, Python ($\text{scikit-learn}$), SQL
-* **Cloud Storage:** AWS S3
-* **Orchestration:** Snowflake Tasks (simulated real-time scheduling)
-* **Dataset:** Capital One DS Challenge 2018 (6.3 Million Records)
+* **Data Cloud:** Snowflake
+* **ML & Logic:** **Snowpark Python**, Python (scikit-learn Isolation Forest), SQL
+* **Orchestration:** **Snowflake Tasks** (Incremental hourly scheduling)
+* **Ingestion:** AWS S3 → Snowpipe
+* **Reporting:** Tableau (fed by Snowflake View)
 
-### End-to-End Flow
+### End-to-End Workflow
 
-1.  **Ingestion:** Data is loaded from **AWS S3** into Snowflake via **Snowpipe**.
-2.  **Feature Engineering:** **Snowpark Python** is used for high-scale, in-database feature creation (e.g., transaction velocity, account aggregates).
-3.  **Model Training:** An **Isolation Forest** model is trained on the prepared features using Snowpark.
-4.  **Real-Time Deployment:** The model is served via a **Snowflake Python UDF (User-Defined Function)**. A **Snowflake Task** executes the UDF on incoming new data, producing real-time anomaly scores.
-5.  **Reporting:** Results are pushed to a final `ALERTS` table, which feeds the **BI Dashboard** for regulatory review.
-
----
-
-## 🛠️ Governance and Value Proposition
-
-The project's design prioritizes the governance and compliance requirements critical to a banking environment.
-
-### **In-Database Deployment (Snowflake UDFs)**
-
-Deploying the scoring logic via Snowflake UDFs ensures:
-* **Data Security (ELT):** Data never leaves the secure environment for scoring, simplifying security review.
-* **Scalability:** The scoring logic leverages Snowflake's compute, dynamically scaling without dedicated MLOps infrastructure.
-
-### **Data Lineage and Auditability**
-
-* The final `ALERTS` table includes metadata (model version, execution timestamp) for full **lineage**.
-* This system leverages the efficient data handling and pipeline agility I developed **at Dell** to ensure data quality and rapid deployment.
+1.  **Ingestion:** New transaction data arrives from **Snowpipe** into the `RAW_TRANSACTIONS` table.
+2.  **Feature Engineering:** Complex aggregates and velocity features are created at scale using **Snowpark DataFrames**.
+3.  **Deployment:** The trained model is deployed as a permanent **Snowflake Python UDF (`SCORE_TRANSACTION`)**.
+4.  **Automation:** A scheduled **Snowflake Task** executes hourly, calling the UDF to score new data using the **optimized <-0.06 threshold**.
+5.  **Visualization:** The final **`V_FRAUD_REPORTING_VIEW`** joins scores with business context and feeds the **Tableau dashboard** for analyst action.
 
 ---
 
-## 🚀 Get Started
+## Repository Contents
 
-### Prerequisites
-
-1.  Access to a **Snowflake** environment.
-2.  An **AWS S3** bucket for data ingestion.
-3.  Python 3.9+ with Snowpark and $\text{scikit-learn}$ libraries.
-
-### Key Files in Repository
-
-* `01_ingestion_setup.sql`: Sets up the database, schema, S3 Stage, and raw tables in Snowflake.
-* `02_feature_engineering_snowpark.py`: Python script containing Snowpark logic for feature creation, model training, and UDF creation.
-* `03_alert_reporting_view.
+| Folder Name | Description | Key Content |
+| :--- | :--- | :--- |
+| `Setup` | Initial SQL environment setup. | `CREATE DATABASE/SCHEMA`, `CREATE STAGE`, `CREATE PIPE (Snowpipe)`. |
+| `EDA` | Snowpark script for feature creation and model training. | Snowpark code for feature aggregates; Isolation Forest training; saving model to stage. |
+| `Automation Scripts` | SQL to deploy the UDF and automation. | `CREATE FUNCTION SCORE_TRANSACTION` and the scheduled **`CREATE TASK`** logic. |
+| `View` | Final SQL scripts for stakeholder output. | Creates the Tableau-ready **`V_FRAUD_REPORTING_VIEW`** with the explicit `RISK_LEVEL` tiering. |
+| `model/if_model.joblib` | Trained Isolation Forest model file. | The binary model asset consumed by the UDF. |
